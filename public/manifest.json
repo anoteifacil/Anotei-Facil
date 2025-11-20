@@ -11,25 +11,25 @@
   "categories": ["business", "productivity", "finance"],
   "icons": [
     {
-      "src": "/icons/icon-192.png",
+      "src": "https://placehold.co/192x192/0b141a/00a884/png?text=AF",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "https://placehold.co/512x512/0b141a/00a884/png?text=AnoteiFacil",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/maskable-192.png",
+      "src": "https://placehold.co/192x192/0b141a/00a884/png?text=AF",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/maskable-512.png",
+      "src": "https://placehold.co/512x512/0b141a/00a884/png?text=AnoteiFacil",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -37,18 +37,25 @@
   ],
   "screenshots": [
     {
-      "src": "/screenshots/screen1.png",
+      "src": "https://placehold.co/1080x1920/0b141a/00a884/png?text=Painel+Geral",
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Tela Inicial do Painel"
     },
     {
-      "src": "/screenshots/screen2.png",
+      "src": "https://placehold.co/1080x1920/0b141a/00a884/png?text=Lista+de+Pedidos",
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Lista de Pedidos"
+    },
+    {
+      "src": "https://placehold.co/1920x1080/0b141a/00a884/png?text=Versao+Desktop",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Versão Desktop"
     }
   ]
 }

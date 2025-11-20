@@ -1,4 +1,4 @@
-const CACHE_NAME = 'anoteifacil-v1';
+const CACHE_NAME = 'anoteifacil-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -36,11 +36,14 @@ self.addEventListener('activate', (event) => {
 
 // Fetch Strategy: Stale-While-Revalidate for most resources
 self.addEventListener('fetch', (event) => {
-  // Skip cross-origin requests like Firebase/Google APIs from caching logic specific to app shell
-  // to avoid CORS issues, or handle them with NetworkFirst if needed.
-  // For this simple PWA, we prioritize the app shell.
-  
+  // Only cache GET requests
   if (event.request.method !== 'GET') return;
+
+  // Do not cache remote images/APIs heavily to avoid CORS issues in PWA validation
+  const url = new URL(event.request.url);
+  if (url.origin !== location.origin) {
+     return;
+  }
 
   event.respondWith(
     caches.match(event.request)
