@@ -1,4 +1,4 @@
-const CACHE_NAME = 'anoteifacil-offline-v3';
+const CACHE_NAME = 'anoteifacil-offline-v4';
 
 // Assets that MUST be cached immediately for the app to boot offline
 const PRECACHE_URLS = [
@@ -8,12 +8,12 @@ const PRECACHE_URLS = [
 ];
 
 // Domains that serve our critical scripts (React, Firebase, Icons, Tailwind)
-// We must cache these, otherwise the app will be blank offline
 const EXTERNAL_DOMAINS_TO_CACHE = [
   'cdn.tailwindcss.com',
   'aistudiocdn.com',
   'www.gstatic.com',
-  'placehold.co' // Icons
+  'dummyimage.com',
+  'placehold.co'
 ];
 
 // Install Event: Cache core files
@@ -62,6 +62,8 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .catch(() => {
+          // If network fails, serve the App Shell (index.html)
+          // This is crucial for PWABuilder's offline check
           return caches.match('/index.html');
         })
     );
@@ -69,8 +71,6 @@ self.addEventListener('fetch', (event) => {
   }
 
   // 2. Asset Requests (JS, CSS, Images, CDNs)
-  // Strategy: Stale-While-Revalidate
-  // Serve from cache immediately (fast), then update cache from network (fresh next time).
   if (url.origin === self.location.origin || isCachableExternal(url.href)) {
     event.respondWith(
       caches.open(CACHE_NAME).then((cache) => {
@@ -78,14 +78,13 @@ self.addEventListener('fetch', (event) => {
           const fetchPromise = fetch(event.request)
             .then((networkResponse) => {
               // Only cache valid responses
-              if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic' || networkResponse.type === 'cors') {
+              if (networkResponse && networkResponse.status === 200) {
                 cache.put(event.request, networkResponse.clone());
               }
               return networkResponse;
             })
             .catch((err) => {
-               // Network failed, nothing to do if we don't have cache
-               // console.log('Network fetch failed for', event.request.url);
+               // Network failed, rely on cache
             });
 
           // Return cached response if available, otherwise wait for network

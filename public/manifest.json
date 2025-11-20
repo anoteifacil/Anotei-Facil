@@ -1,6 +1,7 @@
 {
   "name": "AnoteiFacil",
   "short_name": "AnoteiFacil",
+  "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -15,25 +16,25 @@
   ],
   "icons": [
     {
-      "src": "https://placehold.co/192x192/0b141a/00a884/png?text=AF",
+      "src": "https://dummyimage.com/192x192/0b141a/00a884.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://placehold.co/512x512/0b141a/00a884/png?text=AF",
+      "src": "https://dummyimage.com/512x512/0b141a/00a884.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://placehold.co/192x192/0b141a/00a884/png?text=AF",
+      "src": "https://dummyimage.com/192x192/0b141a/00a884.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "https://placehold.co/512x512/0b141a/00a884/png?text=AF",
+      "src": "https://dummyimage.com/512x512/0b141a/00a884.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -41,14 +42,14 @@
   ],
   "screenshots": [
     {
-      "src": "https://placehold.co/1080x1920/0b141a/00a884/png?text=Painel+Mobile",
+      "src": "https://dummyimage.com/1080x1920/0b141a/00a884.png",
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Visão Mobile"
     },
     {
-      "src": "https://placehold.co/1920x1080/0b141a/00a884/png?text=Painel+Desktop",
+      "src": "https://dummyimage.com/1920x1080/0b141a/00a884.png",
       "sizes": "1920x1080",
       "type": "image/png",
       "form_factor": "wide",
@@ -63,7 +64,7 @@
       "url": "/?action=new_order",
       "icons": [
         {
-          "src": "https://placehold.co/96x96/0b141a/00a884/png?text=+",
+          "src": "https://dummyimage.com/96x96/0b141a/00a884.png",
           "sizes": "96x96",
           "type": "image/png"
         }
