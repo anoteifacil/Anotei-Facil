@@ -41,18 +41,33 @@
   ],
   "screenshots": [
     {
-      "src": "https://placehold.co/1080x1920/0b141a/00a884/png?text=Painel+Geral",
+      "src": "https://placehold.co/1080x1920/0b141a/00a884/png?text=Painel+Mobile",
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Tela Inicial do Painel"
+      "label": "Visão Mobile"
     },
     {
-      "src": "https://placehold.co/1080x1920/0b141a/00a884/png?text=Lista+de+Pedidos",
-      "sizes": "1080x1920",
+      "src": "https://placehold.co/1920x1080/0b141a/00a884/png?text=Painel+Desktop",
+      "sizes": "1920x1080",
       "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Lista de Pedidos"
+      "form_factor": "wide",
+      "label": "Visão Desktop"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Novo Pedido",
+      "short_name": "Pedido",
+      "description": "Criar um novo pedido rapidamente",
+      "url": "/?action=new_order",
+      "icons": [
+        {
+          "src": "https://placehold.co/96x96/0b141a/00a884/png?text=+",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
