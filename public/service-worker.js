@@ -1,4 +1,4 @@
-const CACHE_NAME = 'anoteifacil-offline-v4';
+const CACHE_NAME = 'anoteifacil-offline-v8';
 
 // Assets that MUST be cached immediately for the app to boot offline
 const PRECACHE_URLS = [
@@ -18,13 +18,13 @@ const EXTERNAL_DOMAINS_TO_CACHE = [
 
 // Install Event: Cache core files
 self.addEventListener('install', (event) => {
+  self.skipWaiting(); // Force activation immediately
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('[SW] Pre-caching core assets');
         return cache.addAll(PRECACHE_URLS);
       })
-      .then(() => self.skipWaiting())
   );
 });
 
@@ -40,7 +40,7 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    }).then(() => self.clients.claim())
+    }).then(() => self.clients.claim()) // Take control immediately
   );
 });
 
@@ -49,24 +49,31 @@ const isCachableExternal = (url) => {
   return EXTERNAL_DOMAINS_TO_CACHE.some(domain => url.includes(domain));
 };
 
-// Fetch Event: Stale-While-Revalidate Strategy
+// Fetch Event: Robust Offline Strategy
 self.addEventListener('fetch', (event) => {
   // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
 
-  // 1. Navigation Requests (HTML): Network First, fallback to Cache
-  // This ensures users get the latest version if online, but app works if offline.
+  // 1. Navigation Requests (HTML): Network First, Immediate Fallback to Cache
+  // This is the strict requirement for "Offline Support"
   if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .catch(() => {
-          // If network fails, serve the App Shell (index.html)
-          // This is crucial for PWABuilder's offline check
-          return caches.match('/index.html');
-        })
-    );
+    event.respondWith((async () => {
+      try {
+        // Try network first
+        const networkResponse = await fetch(event.request);
+        return networkResponse;
+      } catch (error) {
+        // Network failed, serve the App Shell (index.html) from cache
+        console.log('[SW] Offline mode: Serving index.html');
+        const cachedResponse = await caches.match('/index.html');
+        if (cachedResponse) return cachedResponse;
+        
+        // Last resort if cache is missing (shouldn't happen if install worked)
+        throw error;
+      }
+    })());
     return;
   }
 
@@ -84,7 +91,8 @@ self.addEventListener('fetch', (event) => {
               return networkResponse;
             })
             .catch((err) => {
-               // Network failed, rely on cache
+               // Network failed, do nothing (we will use cache if available)
+               console.log('[SW] Fetch failed for asset, using cache if available');
             });
 
           // Return cached response if available, otherwise wait for network
