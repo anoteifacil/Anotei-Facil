@@ -1,4 +1,4 @@
-const CACHE_NAME = 'anoteifacil-offline-v7';
+const CACHE_NAME = 'anoteifacil-offline-v8';
 
 // Assets that MUST be cached immediately for the app to boot offline
 const PRECACHE_URLS = [
@@ -49,24 +49,34 @@ const isCachableExternal = (url) => {
   return EXTERNAL_DOMAINS_TO_CACHE.some(domain => url.includes(domain));
 };
 
-// Fetch Event: Stale-While-Revalidate Strategy
+// Fetch Event: Robust Offline Strategy
 self.addEventListener('fetch', (event) => {
   // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
 
-  // 1. Navigation Requests (HTML): Network First, fallback to Cache
-  // This ensures users get the latest version if online, but app works if offline.
+  // 1. Navigation Requests (HTML): Network First, Immediate Fallback to Cache
+  // This logic is critical for PWABuilder's "Offline Support" check.
   if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .catch(() => {
-          // If network fails, serve the App Shell (index.html)
-          // This is crucial for PWABuilder's offline check
-          return caches.match('/index.html');
-        })
-    );
+    event.respondWith((async () => {
+      try {
+        // Attempt network first to get latest version
+        const networkResponse = await fetch(event.request);
+        return networkResponse;
+      } catch (error) {
+        // Network failed (Offline) -> Serve App Shell (index.html)
+        console.log('[SW] Offline detected. Serving cached App Shell.');
+        const cache = await caches.open(CACHE_NAME);
+        const cachedResponse = await cache.match('/index.html');
+        
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        // If index.html isn't in cache (shouldn't happen), let the browser handle the error
+        throw error;
+      }
+    })());
     return;
   }
 
@@ -85,6 +95,7 @@ self.addEventListener('fetch', (event) => {
             })
             .catch((err) => {
                // Network failed, rely on cache
+               // console.log('Fetch failed for asset, relying on cache');
             });
 
           // Return cached response if available, otherwise wait for network
