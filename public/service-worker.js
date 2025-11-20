@@ -1,4 +1,4 @@
-const CACHE_NAME = 'anoteifacil-offline-v6';
+const CACHE_NAME = 'anoteifacil-offline-v4';
 
 // Assets that MUST be cached immediately for the app to boot offline
 const PRECACHE_URLS = [
