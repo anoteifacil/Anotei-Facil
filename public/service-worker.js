@@ -1,4 +1,4 @@
-const CACHE_NAME = 'anoteifacil-offline-v10';
+const CACHE_NAME = 'anoteifacil-offline-v4';
 
 // Assets that MUST be cached immediately for the app to boot offline
 const PRECACHE_URLS = [
@@ -13,19 +13,18 @@ const EXTERNAL_DOMAINS_TO_CACHE = [
   'aistudiocdn.com',
   'www.gstatic.com',
   'dummyimage.com',
-  'placehold.co',
-  'i.imgur.com'
+  'placehold.co'
 ];
 
 // Install Event: Cache core files
 self.addEventListener('install', (event) => {
-  self.skipWaiting(); // Force activation immediately
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('[SW] Pre-caching core assets');
         return cache.addAll(PRECACHE_URLS);
       })
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -41,7 +40,7 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    }).then(() => self.clients.claim()) // Take control immediately
+    }).then(() => self.clients.claim())
   );
 });
 
@@ -50,49 +49,23 @@ const isCachableExternal = (url) => {
   return EXTERNAL_DOMAINS_TO_CACHE.some(domain => url.includes(domain));
 };
 
-// Fetch Event
+// Fetch Event: Stale-While-Revalidate Strategy
 self.addEventListener('fetch', (event) => {
   // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
 
-  // 1. Navigation Requests (HTML)
+  // 1. Navigation Requests (HTML): Network First, fallback to Cache
+  // This ensures users get the latest version if online, but app works if offline.
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      (async () => {
-        try {
-          // Try to use the Stale-While-Revalidate strategy
-          // First, try to find a match for the exact request (e.g., '/')
-          let cachedResponse = await caches.match(event.request);
-          
-          // If exact match not found, try '/index.html' (App Shell)
-          if (!cachedResponse) {
-            cachedResponse = await caches.match('/index.html');
-          }
-
-          const networkFetch = fetch(event.request).then((networkResponse) => {
-            // Update cache in background
-            if (networkResponse && networkResponse.status === 200) {
-              caches.open(CACHE_NAME).then((cache) => {
-                 // Cache it as the request URL AND /index.html to be safe
-                 cache.put(event.request, networkResponse.clone());
-                 if (url.pathname === '/' || url.pathname === '/index.html') {
-                    cache.put('/index.html', networkResponse.clone());
-                 }
-              });
-            }
-            return networkResponse;
-          });
-
-          // Return cached response immediately if available (Offline Support)
-          // Otherwise wait for network
-          return cachedResponse || networkFetch;
-        } catch (error) {
-          // If everything fails (offline and no cache), try fallback again
+      fetch(event.request)
+        .catch(() => {
+          // If network fails, serve the App Shell (index.html)
+          // This is crucial for PWABuilder's offline check
           return caches.match('/index.html');
-        }
-      })()
+        })
     );
     return;
   }
@@ -104,14 +77,17 @@ self.addEventListener('fetch', (event) => {
         return cache.match(event.request).then((cachedResponse) => {
           const fetchPromise = fetch(event.request)
             .then((networkResponse) => {
+              // Only cache valid responses
               if (networkResponse && networkResponse.status === 200) {
                 cache.put(event.request, networkResponse.clone());
               }
               return networkResponse;
             })
             .catch((err) => {
-               // Network failed
+               // Network failed, rely on cache
             });
+
+          // Return cached response if available, otherwise wait for network
           return cachedResponse || fetchPromise;
         });
       })
