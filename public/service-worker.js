@@ -1,4 +1,4 @@
-const CACHE_NAME = 'anoteifacil-offline-v9';
+const CACHE_NAME = 'anoteifacil-offline-v10';
 
 // Assets that MUST be cached immediately for the app to boot offline
 const PRECACHE_URLS = [
@@ -14,7 +14,7 @@ const EXTERNAL_DOMAINS_TO_CACHE = [
   'www.gstatic.com',
   'dummyimage.com',
   'placehold.co',
-  'i.imgur.com' // Added Imgur since manifest uses it
+  'i.imgur.com'
 ];
 
 // Install Event: Cache core files
@@ -50,36 +50,49 @@ const isCachableExternal = (url) => {
   return EXTERNAL_DOMAINS_TO_CACHE.some(domain => url.includes(domain));
 };
 
-// Fetch Event: Stale-While-Revalidate Strategy
+// Fetch Event
 self.addEventListener('fetch', (event) => {
   // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
 
-  // 1. Navigation Requests (HTML): Stale-While-Revalidate
-  // This guarantees the Offline test passes because it returns from cache immediately if available.
+  // 1. Navigation Requests (HTML)
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      caches.match('/index.html').then((cachedResponse) => {
-        // If we have a cached version, return it IMMEDIATELY
-        // This satisfies "Offline Support" instantly
-        const networkFetch = fetch(event.request)
-          .then((networkResponse) => {
-            // Update cache in background for next time
+      (async () => {
+        try {
+          // Try to use the Stale-While-Revalidate strategy
+          // First, try to find a match for the exact request (e.g., '/')
+          let cachedResponse = await caches.match(event.request);
+          
+          // If exact match not found, try '/index.html' (App Shell)
+          if (!cachedResponse) {
+            cachedResponse = await caches.match('/index.html');
+          }
+
+          const networkFetch = fetch(event.request).then((networkResponse) => {
+            // Update cache in background
             if (networkResponse && networkResponse.status === 200) {
               caches.open(CACHE_NAME).then((cache) => {
-                cache.put('/index.html', networkResponse.clone());
+                 // Cache it as the request URL AND /index.html to be safe
+                 cache.put(event.request, networkResponse.clone());
+                 if (url.pathname === '/' || url.pathname === '/index.html') {
+                    cache.put('/index.html', networkResponse.clone());
+                 }
               });
             }
             return networkResponse;
-          })
-          .catch(() => {
-            // Network failed, but we don't care because we (hopefully) returned cachedResponse
           });
 
-        return cachedResponse || networkFetch;
-      })
+          // Return cached response immediately if available (Offline Support)
+          // Otherwise wait for network
+          return cachedResponse || networkFetch;
+        } catch (error) {
+          // If everything fails (offline and no cache), try fallback again
+          return caches.match('/index.html');
+        }
+      })()
     );
     return;
   }
@@ -91,18 +104,14 @@ self.addEventListener('fetch', (event) => {
         return cache.match(event.request).then((cachedResponse) => {
           const fetchPromise = fetch(event.request)
             .then((networkResponse) => {
-              // Only cache valid responses
               if (networkResponse && networkResponse.status === 200) {
                 cache.put(event.request, networkResponse.clone());
               }
               return networkResponse;
             })
             .catch((err) => {
-               // Network failed, rely on cache
-               // console.log('[SW] Fetch failed for asset');
+               // Network failed
             });
-
-          // Return cached response if available, otherwise wait for network
           return cachedResponse || fetchPromise;
         });
       })
