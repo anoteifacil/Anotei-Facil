@@ -2,24 +2,8 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AnoteiFacil</title>
-    
-    <!-- PWA Meta Tags - Cores Sincronizadas com Manifest -->
-    <meta name="theme-color" content="#1f2c34" />
-    <meta name="background-color" content="#0b141a" />
-    <meta name="description" content="Aplicativo de gestão para empresa de produtos alimentícios" />
-    
-    <link rel="manifest" href="/manifest.json" />
-    
-    <!-- Icons updated to use valid public URL matching the user logo style -->
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/4003/4003821.png" />
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4003/4003821.png" />
-    
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="AnoteiFacil" />
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -55,7 +39,6 @@
       body {
         background-color: #0b141a;
         color: #e9edef;
-        overscroll-behavior-y: none; /* Prevents pull-to-refresh on mobile PWA */
       }
     </style>
   <script type="importmap">
@@ -77,21 +60,5 @@
 </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="./index.tsx"></script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js')
-            .then((registration) => {
-              console.log('SW registered with scope:', registration.scope);
-              // Force update if available
-              registration.update();
-            })
-            .catch((registrationError) => {
-              console.log('SW registration failed: ', registrationError);
-            });
-        });
-      }
-    </script>
   </body>
 </html>
