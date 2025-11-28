@@ -16,7 +16,7 @@
   ],
   "icons": [
     {
-      "src": "/logoanotei-48x48.png",
+      "src": "windows11/Square44x44Logo.targetsize-48.png",
       "sizes": "48x48",
       "type": "image/png",
       "purpose": "any"
@@ -46,13 +46,13 @@
       "purpose": "maskable"
     },
     {
-      "src": "android/android-launchericon-512-512.png",
+      "src": "https://dummyimage.com/512x512/f2f2f2/013606&text=Anotei+facil",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "android/android-launchericon-512-512.png",
+      "src": "https://dummyimage.com/512x512/f2f2f2/013606&text=Anotei+facil",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
